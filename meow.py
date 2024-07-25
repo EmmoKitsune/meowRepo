@@ -3,7 +3,7 @@ import requests
 import os
 import stat
 
-github_repo = "http://192.168.100.79/meow/"
+github_repo = "http://192.168.100.17/meow/"
 
 def download_file(url, save_as):
     response = requests.get(url)
@@ -49,7 +49,7 @@ def install_package(package_name):
         print(f"Package {file_name} not found.")
 
 def get_packages(_):
-    response = requests.get(github_repo + "package-list.txt")
+    response = requests.get(github_repo + "package-list-man.txt")
     if response.status_code == 200:
         print(response.content.decode('utf-8'))
     else:
