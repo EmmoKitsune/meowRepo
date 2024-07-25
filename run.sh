@@ -1,1 +1,1 @@
-python3 meow.py uwget
+python3 meow.py owinstall Test

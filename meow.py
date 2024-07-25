@@ -3,7 +3,7 @@ import requests
 import os
 import stat
 
-github_repo = "http://192.168.100.17/meow/"
+github_repo = "http://192.168.100.79/meow/"
 
 def download_file(url, save_as):
     response = requests.get(url)
@@ -11,8 +11,6 @@ def download_file(url, save_as):
         with open(save_as, 'wb') as f:
             f.write(response.content)
 
-        os.chmod(save_as, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
-        print(f"modified permissions for {save_as}!")
         return True
     else:
         print(f"Error downloading package. Status code: {response.status_code}")
@@ -26,9 +24,9 @@ def get_package_file_name(package_name):
         package_list = response.content.decode('utf-8').splitlines()
 
         for line in package_list:
-            name, file_name = line.split()
+            name, file_name, type = line.split()
             if name == package_name:
-                return file_name
+                return file_name,type
             
         print(f"Package {package_name} not found in the list.")
         return None
@@ -36,15 +34,26 @@ def get_package_file_name(package_name):
         print(f"Error retrieving package list. Status code: {response.status_code}")
         return None
 
+
 def install_package(package_name):
 
-    file_name = get_package_file_name(package_name)
+    file_name, type = get_package_file_name(package_name)
     if not file_name:
         return
 
     print(f"Downloading package {file_name}...")
     if download_file(github_repo + file_name, file_name):
         print(f"Package {file_name} downloaded!")
+
+        match type:
+            case "generic":
+                print(f"Package {package_name} installed!")
+            case "executable":
+                os.chmod(file_name, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+                print(f"Package {package_name} installed!")
+            case _:
+                print("Cannot install package,unrecognized type.")
+
     else:
         print(f"Package {file_name} not found.")
 
